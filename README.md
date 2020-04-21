@@ -18,11 +18,20 @@
 - requests
 
 ## 使用示例
-使用前在```main.py```中指定下载路径，并提供SESSDATA.
+使用前在```main.py```中指定下载路径, 并提供SESSDATA.
+```
+# ---------------下载路径 & SESSDATA-----------------
+DIRNAME = 'E:/downloads'
+COOKIE = 'SESSDATA=3b5671db%2C1502650790%2B2w420*41'
+# --------------------------------------------------
+```
 
+在命令行中, 下载某视频的第1部分.
 ```
 python main.py --url https://www.bilibili.com/video/BVxxxxxxxx --page 1 --quality 3
 ```
+## 参数说明
+
 常用：
 ```
 --url, -u: 视频url, 必填
