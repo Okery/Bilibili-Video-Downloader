@@ -2,7 +2,7 @@ import argparse
 from downloader import BiliDownloader
 from multiprocessing import cpu_count
 
-# ---------------下载路径 & SESSDATA-----------------
+# ---------------下载路径 & Cookie-----------------
 DIRNAME = 'E:/downloads'
 COOKIE = 'SESSDATA=3f5681db%2C1602650790%2C8c420*41'
 # --------------------------------------------------
