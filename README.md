@@ -17,7 +17,8 @@
 - python 3
 - requests
 
-## 示例
+## 使用示例
+使用前在```main.py```中指定下载路径，并提供SESSDATA.
 
 ```
 python main.py --url https://www.bilibili.com/video/BVxxxxxxxx --page 1 --quality 3
