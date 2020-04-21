@@ -18,7 +18,7 @@
 - requests
 
 ## 使用示例
-使用前在```main.py```中指定下载路径, 并提供SESSDATA.
+使用前在```main.py```中指定下载路径, 并提供Cookie.
 ```
 # ---------------下载路径 & SESSDATA-----------------
 DIRNAME = 'E:/downloads'
