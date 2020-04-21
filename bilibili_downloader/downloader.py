@@ -6,16 +6,19 @@ from utils import extract_json, merge_flv
 
 from collections import defaultdict
 from contextlib import closing
+from multiprocessing import cpu_count
 from concurrent.futures import ThreadPoolExecutor, as_completed
 
 
 class BiliDownloader:
     USER_AGENT = 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/79.0.3945.88 Safari/537.36'
     
-    def __init__(self, url, dir_name, cookie, max_workers):
+    def __init__(self, url, dir_name, cookie, max_workers=None):
         self.url = url
         self.DIRNAME = dir_name
         self.COOKIE = cookie
+        if max_workers is None:
+            max_workers = cpu_count() // 2
         self.max_workers = max_workers
         
         self.qn2desc = {
@@ -162,7 +165,7 @@ class BiliDownloader:
                         os.remove(f)
                     print('\n    Merged successfully:', self.container[page][0])
                     
-    def __call__(self, page, quality, mode, info=None):
+    def __call__(self, page=0, quality=3, mode='common', info=None):
         assert mode in ['common', 'info', 'download']
         if mode == 'download':
             assert info is not None, "info should not be None while mode='download'"

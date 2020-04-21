@@ -4,7 +4,7 @@ from multiprocessing import cpu_count
 
 # ---------------下载路径 & SESSDATA-----------------
 DIRNAME = 'E:/downloads'
-COOKIE = 'SESSDATA=3b5671db%2C1502650790%2B2w420*41'
+COOKIE = 'SESSDATA=3f5681db%2C1602650790%2C8c420*41'
 # --------------------------------------------------
 
 
