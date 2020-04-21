@@ -18,6 +18,7 @@
 - requests
 
 ## 使用示例
+
 使用前在```main.py```中指定下载路径, 并提供 Cookie:
 ```
 # ---------------下载路径 & Cookie-----------------
@@ -30,6 +31,7 @@ COOKIE = 'SESSDATA=3b5671db%2C15026c0790%2B2w420*51' # 每月更新一次
 ```
 python main.py --url https://www.bilibili.com/video/BVxxxxxxxx --page 1 --quality 3
 ```
+
 ## 参数说明
 
 常用：
