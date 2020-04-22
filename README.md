@@ -23,14 +23,16 @@
 ```
 # ---------------下载路径 & Cookie-----------------
 DIRNAME = 'E:/downloads'
-COOKIE = 'SESSDATA=3b5671db%2C15026c0790%2B2w420*41' # 每月更新一次
+COOKIE = 'SESSDATA=3f5081db%2C1b02652790%2C8c420*41' # 每月更新一次
 # --------------------------------------------------
 ```
 
-在命令行中, 下载某视频的第 1 部分:
+在命令行中, 下载某视频的第 1 部分(720P):
 ```
 python main.py --url https://www.bilibili.com/video/BVxxxxxxxx --page 1 --quality 3
 ```
+
+使用命令行不太方便, 而且容易出现某些问题, 建议使用```demo.ipynb```.
 
 ## 参数说明
 
@@ -41,7 +43,14 @@ python main.py --url https://www.bilibili.com/video/BVxxxxxxxx --page 1 --qualit
 --quality, -q: 视频的清晰度档次. 默认值为 3, 表示下载第三种清晰度, 一般是 720P.
 ```
 
-其它：
+高级：
 ```
 --max-workers: 线程数, 默认值为当前 CPU 核心数的一半.
+--mode: 模式, 控制脚本行为.
 ```
+
+## 其它
+
+本 Repo 只是为了学习交流之用, 请勿用于其它途径.
+
+如有问题, 欢迎提 issue.
