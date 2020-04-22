@@ -165,7 +165,7 @@ class BiliDownloader:
                         os.remove(f)
                     print('\n    Merged successfully:', self.container[page][0])
                     
-    def __call__(self, page=0, quality=3, mode='common', info=None):
+    def __call__(self, page=1, quality=3, mode='common', info=None):
         assert mode in ['common', 'info', 'download']
         if mode == 'download':
             assert info is not None, "info should not be None while mode='download'"
