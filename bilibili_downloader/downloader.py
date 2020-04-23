@@ -6,6 +6,7 @@ from utils import extract_json, merge_flv
 
 from collections import defaultdict
 from contextlib import closing
+from warnings import warn
 from multiprocessing import cpu_count
 from concurrent.futures import ThreadPoolExecutor, as_completed
 
@@ -30,22 +31,22 @@ class BiliDownloader:
             112: '1080P+',
             116: '1080P60'
         }
+        self.quality = None
         self._keys = {
             'video': ['title', 'desc', 'pic'],
             'bangumi': ['title', 'series', 'evaluate', 'cover']
         }
         self.get_basic_info()
 
-    def retry(self, download_addres, stream, headers, timeout):
-        count = 0
-        while True:
+    @staticmethod
+    def retry(url, timeout=20, max_times=5, **kwargs):
+        for i in range(max_times):
             try:
-                f = requests.get(download_addres, stream=stream, headers=headers, timeout=timeout)
-                return f
+                res = requests.get(url, timeout=timeout, **kwargs)
+                return res
             except:
-                count += 1
-                print("timeout! retry {} times!".format(count))
-                continue
+                print('Timeout! Retried {}/{}'.format(i + 1, max_times))
+        return -1
 
     def get_basic_info(self):
         headers = {'User-Agent': self.USER_AGENT}
@@ -99,6 +100,7 @@ class BiliDownloader:
 
         length = len(info['page'])
         info['play_url'] = [[] for _ in range(length)]
+        info['size'] = [[] for _ in range(length)]
 
         headers = {
             'User-Agent': self.USER_AGENT,
@@ -107,58 +109,62 @@ class BiliDownloader:
         for i in range(length):
             cid = info['cid'][i]
             aid = info['aid'][i]
-            url = 'https://api.bilibili.com/x/player/playurl?cid={}&avid={}'.format(cid, aid)
+            
+            if self.quality is None:
+                url = 'https://api.bilibili.com/x/player/playurl?cid={}&avid={}'.format(cid, aid)
+                html = requests.get(url, headers=headers).json()
+                data = html['data']
+                if data is None:
+                    print('\nInvalid Cookie! You need use or update the VIP COOKIE!')
+                    sys.exit(1)
+
+                actual_gear = min(quality, len(data['accept_quality']))
+                self.quality = data['accept_quality'][-actual_gear]
+
+            url = 'https://api.bilibili.com/x/player/playurl?cid={}&avid={}&qn={}'.format(cid, aid, self.quality)
             html = requests.get(url, headers=headers).json()
             data = html['data']
-            if data is None:
-                print('\nInvalid Cookie! You need use or update the VIP COOKIE!')
-                sys.exit(1)
-
-            actual_gear = min(quality, len(data['accept_quality']))
-            actual_quality = data['accept_quality'][-actual_gear]
-            info['actual_quality'].append(actual_quality)
-
-            url = 'https://api.bilibili.com/x/player/playurl?cid={}&avid={}&qn={}'.format(cid, aid, actual_quality)
-            html = requests.get(url, headers=headers).json()
-            data = html['data']
-
+            
+            info['actual_quality'].append(data['quality'])
             for du in data['durl']:
                 info['play_url'][i].append(du['url'])
+                info['size'][i].append(du['size'])
 
-    def download_single(self, file_path, play_url):
+    def download_single(self, file_path, play_url, file_size):
         file_dir, file_name = os.path.split(file_path)
         done_file_name = file_name[2:]
         done_file_path = os.path.join(file_dir, done_file_name)
-        block_size = 1024 * 1024
 
-        if not os.path.exists(done_file_path):
+        if os.path.exists(done_file_path):
+            if os.path.getsize(done_file_path) != file_size:
+                warn('There is a problem with the file size.')
+                warn('You need check over {}'.format(done_file_path))
+        else:
+            block_size = 1024 * 1024
+            
             if os.path.exists(file_path):
                 downloaded_size = os.path.getsize(file_path)
-                downloaded_index = int(downloaded_size / block_size)
+                start_index = downloaded_size // block_size
             else:
-                downloaded_index = 0
+                start_index = 0
+                
             headers = {
                 'User-Agent': self.USER_AGENT,
                 'Referer': self.url,
             }
-            res = requests.get(play_url, headers=headers, stream=True)
-            length = int(res.headers['Content-Length'])
-            blocks = int(length / block_size)
-            the_last_blocks = length % block_size
-            while downloaded_index < blocks:
-                with open(file_path, 'ab') as f:
-                    headers["Range"] = "bytes={}-{}".format(downloaded_index * block_size,
-                                                            (downloaded_index + 1) * block_size)
-                    block = self.retry(play_url, headers=headers, stream=True, timeout=20)
-                    f.write(block.content)
-                    print('\r    {}/{} downloading'.format(downloaded_index, blocks), end='')
-                    downloaded_index += 1
-            if the_last_blocks:
-                with open(file_path, 'ab') as f:
-                    headers["Range"] = "bytes={}-{}".format(blocks * block_size, blocks * block_size + the_last_blocks)
-                    block = self.retry(play_url, headers=headers, stream=True, timeout=20)
-                    f.write(block.content)
-                    print("the last block wrote, downloading success!")
+            blocks = file_size // block_size
+            extra = file_size % block_size
+            with open(file_path, 'ab') as f:
+                for idx in range(start_index, blocks):
+                    headers['Range'] = 'bytes={}-{}'.format(idx * block_size, (idx + 1) * block_size)
+                    res = self.retry(play_url, headers=headers, stream=True)
+                    f.write(res.content[:-1])
+                    print('\r    {}/{}'.format(idx + 1, blocks), end='')
+                if extra > 0:
+                    headers['Range'] = 'bytes={}-{}'.format(blocks * block_size, file_size)
+                    res = self.retry(play_url, headers=headers, stream=True)
+                    f.write(res.content)
+                    
             os.rename(file_path, done_file_path)
 
         print('\n    Done: {}\n'.format(done_file_path))
@@ -216,6 +222,7 @@ class BiliDownloader:
 
             for j in range(len_play_url):
                 play_url = info['play_url'][i][j]
+                file_size = info['size'][i][j]
 
                 if len_play_url == 1:
                     file_path = os.path.join(video_dir, '0.{}.flv'.format(sub_title))
@@ -223,7 +230,7 @@ class BiliDownloader:
                     # e.g. https://www.bilibili.com/bangumi/play/ss2539/
                     file_path = os.path.join(video_dir,
                                              '0.P{}.{}-{}.{}.flv'.format(p, j + 1, len_play_url, sub_title))
-                tasks.append(executor.submit(self.download_single, file_path, play_url))
+                tasks.append(executor.submit(self.download_single, file_path, play_url, file_size))
 
         self.container = {}
         for future in as_completed(tasks):
