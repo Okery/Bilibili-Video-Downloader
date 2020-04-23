@@ -25,6 +25,5 @@ if __name__ == '__main__':
 
     args.dir_name = DIRNAME
     args.cookie = COOKIE
-    args.max_workers = cpu_count() // 2
     
     main(args)
