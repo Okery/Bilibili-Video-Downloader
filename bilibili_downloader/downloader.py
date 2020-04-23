@@ -5,7 +5,6 @@ import requests
 from utils import extract_json, merge_flv
 
 from collections import defaultdict
-from contextlib import closing
 from warnings import warn
 from multiprocessing import cpu_count
 from concurrent.futures import ThreadPoolExecutor, as_completed
