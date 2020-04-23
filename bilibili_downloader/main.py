@@ -1,6 +1,5 @@
 import argparse
 from downloader import BiliDownloader
-from multiprocessing import cpu_count
 
 # ---------------下载路径 & Cookie-----------------
 DIRNAME = 'E:/downloads'
