@@ -30,10 +30,9 @@ class BiliDownloader:
             112: '1080P+',
             116: '1080P60'
         }
-        self.quality = None
         self._keys = {
             'video': ['title', 'desc', 'pic'],
-            'bangumi': ['title', 'series', 'evaluate', 'cover']
+            'bangumi': ['title', 'evaluate', 'cover']
         }
         self.get_basic_info()
 
@@ -109,18 +108,17 @@ class BiliDownloader:
             cid = info['cid'][i]
             aid = info['aid'][i]
             
-            if self.quality is None:
-                url = 'https://api.bilibili.com/x/player/playurl?cid={}&avid={}'.format(cid, aid)
-                html = requests.get(url, headers=headers).json()
-                data = html['data']
-                if data is None:
-                    print('\nInvalid Cookie! You need use or update the VIP COOKIE!')
-                    sys.exit(1)
+            url = 'https://api.bilibili.com/x/player/playurl?cid={}&avid={}'.format(cid, aid)
+            html = requests.get(url, headers=headers).json()
+            data = html['data']
+            if data is None:
+                print('\nInvalid Cookie! You need use or update the VIP COOKIE!')
+                sys.exit(1)
 
-                actual_gear = min(quality, len(data['accept_quality']))
-                self.quality = data['accept_quality'][-actual_gear]
+            actual_gear = min(quality, len(data['accept_quality']))
+            actual_quality = data['accept_quality'][-actual_gear]
 
-            url = 'https://api.bilibili.com/x/player/playurl?cid={}&avid={}&qn={}'.format(cid, aid, self.quality)
+            url = 'https://api.bilibili.com/x/player/playurl?cid={}&avid={}&qn={}'.format(cid, aid, actual_quality)
             html = requests.get(url, headers=headers).json()
             data = html['data']
             
@@ -155,9 +153,9 @@ class BiliDownloader:
             extra = file_size % block_size
             with open(file_path, 'ab') as f:
                 for idx in range(start_index, blocks):
-                    headers['Range'] = 'bytes={}-{}'.format(idx * block_size, (idx + 1) * block_size)
+                    headers['Range'] = 'bytes={}-{}'.format(idx * block_size, (idx + 1) * block_size - 1)
                     res = self.retry(play_url, headers=headers, stream=True)
-                    f.write(res.content[:-1])
+                    f.write(res.content)
                     print('\r    {}/{}'.format(idx + 1, blocks), end='')
                 if extra > 0:
                     headers['Range'] = 'bytes={}-{}'.format(blocks * block_size, file_size)
