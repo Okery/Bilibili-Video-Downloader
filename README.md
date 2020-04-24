@@ -2,9 +2,10 @@
 
 特点：
 
-- 可下载UP主视频, 支持多P下载
-- 可下载番剧、电影, 支持多P下载
-- 支持多线程下载, 加速多P下载
+- 可下载UP主视频, 番剧 & 电影
+- 支持多P下载
+- 支持多线程下载
+- 可随时停止下载
 
 注意: 本脚本只是帮助使用者下载使用者原本就能观看的视频. 
 
@@ -27,12 +28,10 @@ COOKIE = 'SESSDATA=3f5081db%2C1b02652790%2C8c420*41' # 每月更新一次
 # --------------------------------------------------
 ```
 
-在命令行中, 下载某视频的第 1 部分(720P):
+在命令行中, 下载某视频的第 1 部分(1080P):
 ```
-python main.py --url https://www.bilibili.com/video/BVxxxxxxxx --page 1 --quality 3
+python main.py --url https://www.bilibili.com/video/BVxxxxxxxx --page 1 --quality 4
 ```
-
-使用命令行不太方便, 而且容易出现某些问题, 建议使用```demo.ipynb```.
 
 ## 参数说明
 
