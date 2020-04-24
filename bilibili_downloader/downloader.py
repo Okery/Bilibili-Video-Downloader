@@ -112,9 +112,9 @@ class BiliDownloader:
             html = requests.get(url, headers=headers).json()
             data = html['data']
             if data is None:
-                print('Something wrong happened, causes are as follows:')
-                print('\n1) Invalid Cookie! Use or update the VIP Cookie!')
-                print('\n2) The video is NOT accessible for your location!')
+                print('\nSomething wrong happened, causes are as follows:')
+                print('1) Invalid Cookie! Use or update the VIP Cookie!')
+                print('2) The video is NOT accessible for your location!')
                 sys.exit(1)
 
             actual_gear = min(quality, len(data['accept_quality']))
