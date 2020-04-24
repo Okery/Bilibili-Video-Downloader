@@ -28,10 +28,11 @@ COOKIE = 'SESSDATA=3f5081db%2C1b02652790%2C8c420*41' # 每月更新一次
 # --------------------------------------------------
 ```
 
-在命令行中, 下载某视频的第 1 部分(1080P):
+在命令行中, 下载某视频的第 1, 2 部分(1080P):
 ```
-python main.py --url https://www.bilibili.com/video/BVxxxxxxxx --page 1 --quality 4
+python main.py --url https://www.bilibili.com/video/BVxxxxxxxx --page 1 2 --quality 4
 ```
+注意: 在命令行中, 视频地址必须去掉 ? 及后面部分.
 
 ## 参数说明
 
