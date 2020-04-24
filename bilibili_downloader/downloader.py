@@ -2,12 +2,12 @@ import re
 import os
 import sys
 import requests
-from utils import extract_json, merge_flv
 
 from collections import defaultdict
 from warnings import warn
 from multiprocessing import cpu_count
 from concurrent.futures import ThreadPoolExecutor, as_completed
+from utils import extract_json, merge_flv
 
 
 class BiliDownloader:
@@ -136,8 +136,7 @@ class BiliDownloader:
 
         if os.path.exists(done_file_path):
             if os.path.getsize(done_file_path) != file_size:
-                warn('There is a problem with the file size.')
-                warn('You need check over {}'.format(done_file_path))
+                warn('File size mismatched. You need check over {}'.format(done_file_path))
         else:
             block_size = 1024 * 1024
             
@@ -186,7 +185,7 @@ class BiliDownloader:
 
                 if len(self.container[page]) == int(length) + 1:
                     flvs = sorted(self.container[page][1:])
-                    merge_flv(flvs, self.container[page][0])  # merge_flv (list of merge flvs, target file)
+                    merge_flv(flvs, self.container[page][0]) # merge_flv (list of flvs to be merged, target file)
                     for f in self.container[page][1:]:
                         os.remove(f)
                     print('\n    Merged successfully:', self.container[page][0])
@@ -226,9 +225,15 @@ class BiliDownloader:
                 if len_play_url == 1:
                     file_path = os.path.join(video_dir, '0.{}.flv'.format(sub_title))
                 else:
+                    done_merged_file = os.path.join(video_dir, '{}.flv'.format(sub_title))
+                    if os.path.exists(done_merged_file):
+                        print('\n    Done: {}\n'.format(done_merged_file))
+                        break
+                        
                     # e.g. https://www.bilibili.com/bangumi/play/ss2539/
                     file_path = os.path.join(video_dir,
                                              '0.P{}.{}-{}.{}.flv'.format(p, j + 1, len_play_url, sub_title))
+                        
                 tasks.append(executor.submit(self.download_single, file_path, play_url, file_size))
 
         self.container = {}
